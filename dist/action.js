@@ -11298,14 +11298,14 @@ async function run() {
       lastStage = deployment.latest_stage.name;
       console.log("# Now at stage: " + lastStage);
       if (!markedAsInProgress) {
-        await updateDeployment(token, deployment, "in_progress");
+        await updateDeployment(token, accountId, deployment, "in_progress");
         markedAsInProgress = true;
       }
     }
     if (latestStage.status === "failure") {
       waiting = false;
       core.setFailed(`Deployment failed on step: ${latestStage.name}!`);
-      await updateDeployment(token, deployment, "failure");
+      await updateDeployment(token, accountId, deployment, "failure");
       return;
     }
     if (latestStage.name === "deploy" && ["success", "failure"].includes(latestStage.status)) {
@@ -11317,7 +11317,7 @@ async function run() {
       core.setOutput("alias", aliasUrl);
       core.setOutput("success", deployment.latest_stage.status === "success");
       if (token !== "") {
-        await updateDeployment(token, deployment, latestStage.status === "success" ? "success" : "failure");
+        await updateDeployment(token, accountId, deployment, latestStage.status === "success" ? "success" : "failure");
       }
     }
   }
@@ -11368,7 +11368,7 @@ async function pollApi(authHeaders, accountId, project, commitHash) {
 async function sleep() {
   return new Promise((resolve) => setTimeout(resolve, 5e3));
 }
-async function updateDeployment(token, deployment, state) {
+async function updateDeployment(token, accountId, deployment, state) {
   if (!token)
     return;
   const octokit = github.getOctokit(token);
@@ -11395,7 +11395,7 @@ async function updateDeployment(token, deployment, state) {
       deployment_id: ghDeployment.id,
       environment,
       environment_url: deployment.url,
-      log_url: `https://dash.cloudflare.com?to=/:account/pages/view/${deployment.project_name}/${deployment.id}`,
+      log_url: `https://dash.cloudflare.com/${accountId}/pages/view/${deployment.project_name}/${deployment.id}`,
       description: "Cloudflare Pages",
       state
     });
