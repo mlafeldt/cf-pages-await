@@ -165,7 +165,7 @@ async function updateDeployment(token: string, accountId: string, deployment: De
     ghDeployment = data;
   }
 
-  if (deployment.latest_stage.name === 'deploy' && ['success', 'failed'].includes(deployment.latest_stage.status)) {
+  if (['success', 'failure'].includes(deployment.latest_stage.status)) {
     // @ts-ignore - Env is not typed correctly
     await octokit.rest.repos.createDeploymentStatus({
       ...sharedOptions,

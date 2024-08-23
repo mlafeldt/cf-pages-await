@@ -11389,7 +11389,7 @@ async function updateDeployment(token, accountId, deployment, state) {
     });
     ghDeployment = data;
   }
-  if (deployment.latest_stage.name === "deploy" && ["success", "failed"].includes(deployment.latest_stage.status)) {
+  if (["success", "failure"].includes(deployment.latest_stage.status)) {
     await octokit.rest.repos.createDeploymentStatus({
       ...sharedOptions,
       deployment_id: ghDeployment.id,
